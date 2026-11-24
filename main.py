@@ -23,10 +23,13 @@ LAST_WORDS = (
 )
 
 MAX_CHARS = 200
-OUTPUT_PATH = "/output/entry.txt"
+DEFAULT_OUTPUT_PATH = "/output/entry.txt"
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    # The grader reads /output/entry.txt; an optional argument lets a
+    # human run the entry locally without touching the graded path.
+    output_path = argv[1] if argv and len(argv) > 1 else DEFAULT_OUTPUT_PATH
     line = LAST_WORDS.strip()
 
     if not line:
@@ -42,16 +45,19 @@ def main() -> int:
     if line != line.strip() or "\n" in line or "\r" in line:
         print("error: entry must be a single line", file=sys.stderr)
         return 1
+    if not line.endswith((".", "!", "?", "…")):
+        print("error: entry should end on terminal punctuation", file=sys.stderr)
+        return 1
 
-    output_dir = os.path.dirname(OUTPUT_PATH)
+    output_dir = os.path.dirname(output_path)
     os.makedirs(output_dir, exist_ok=True)
-    with open(OUTPUT_PATH, "w", encoding="utf-8") as handle:
+    with open(output_path, "w", encoding="utf-8") as handle:
         handle.write(line + "\n")
 
-    print("wrote %d characters to %s" % (len(line), OUTPUT_PATH))
+    print("wrote %d characters to %s" % (len(line), output_path))
     print(line)
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv))
